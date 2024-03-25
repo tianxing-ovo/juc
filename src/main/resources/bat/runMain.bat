@@ -1,0 +1,2 @@
+﻿for /L %%n in (1, 1, 10) do java -cp D:\code\juc\target\classes com.ltx.Main
+for /L %%n in (1, 1, 10) do java -cp D:\code\juc\target\classes;D:\repository\org\slf4j\slf4j-api\2.0.7\slf4j-api-2.0.7.jar;D:\repository\ch\qos\logback\logback-classic\1.3.14\logback-classic-1.3.14.jar;D:\repository\ch\qos\logback\logback-core\1.3.14\logback-core-1.3.14.jar com.ltx.designpattern.TwoPhaseTermination
