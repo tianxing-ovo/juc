@@ -14,7 +14,7 @@ public class Join {
                 TimeUnit.SECONDS.sleep(1);
                 i = 10;
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
         }, "t1");
         t1.start();

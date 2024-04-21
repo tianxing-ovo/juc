@@ -20,7 +20,7 @@ public class DaemonThread {
                 TimeUnit.SECONDS.sleep(10);
                 log.info("守护线程运行结束");
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
         }, "t1");
         t1.setDaemon(true);

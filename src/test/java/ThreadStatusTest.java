@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
  * 线程状态
  */
 @Slf4j
-public class ThreadStatus {
+public class ThreadStatusTest {
 
     /**
      * NEW/RUNNABLE/TIMED_WAITING/TERMINATED
@@ -18,7 +18,7 @@ public class ThreadStatus {
             try {
                 TimeUnit.MILLISECONDS.sleep(500);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
         }, "t1");
         // NEW
@@ -43,14 +43,14 @@ public class ThreadStatus {
             try {
                 TimeUnit.SECONDS.sleep(2);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
         }, "t1");
         Thread t2 = new Thread(() -> {
             try {
                 t1.join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
         }, "t2");
         t1.start();
@@ -66,20 +66,20 @@ public class ThreadStatus {
     @Test
     public void test3() throws InterruptedException {
         Thread t1 = new Thread(() -> {
-            synchronized (ThreadStatus.class) {
+            synchronized (ThreadStatusTest.class) {
                 try {
                     TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    e.printStackTrace(System.err);
                 }
             }
         }, "t1");
         Thread t2 = new Thread(() -> {
-            synchronized (ThreadStatus.class) {
+            synchronized (ThreadStatusTest.class) {
                 try {
                     TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    e.printStackTrace(System.err);
                 }
             }
         }, "t2");
