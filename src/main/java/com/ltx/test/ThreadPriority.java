@@ -2,6 +2,8 @@ package com.ltx.test;
 
 /**
  * 线程优先级
+ *
+ * @author tianxing
  */
 public class ThreadPriority {
     public static void main(String[] args) {
@@ -14,7 +16,7 @@ public class ThreadPriority {
         Thread t2 = new Thread(() -> {
             int count = 0;
             while (count < 1000) {
-                // 当前正在执行的线程放弃CPU执行时间片,回到可运行(Runnable)状态,将执行机会让给优先级相同或更高且已准备好运行的线程
+                // 当前正在执行的线程放弃CPU执行时间片 -> 回到就绪状态 -> 将执行机会让给优先级相同或更高且已准备好运行的线程
                 Thread.yield();
                 System.out.println("t2: " + count++);
             }

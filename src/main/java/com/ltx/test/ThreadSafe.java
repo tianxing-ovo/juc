@@ -2,10 +2,12 @@ package com.ltx.test;
 
 /**
  * 线程安全
+ *
+ * @author tianxing
  */
 public class ThreadSafe {
 
-    private static final Object lock = new Object();
+    private static final Object LOCK = new Object();
     private static int count;
 
     /**
@@ -14,14 +16,14 @@ public class ThreadSafe {
     public static void main(String[] args) throws InterruptedException {
         Thread t1 = new Thread(() -> {
             for (int i = 0; i < 5000; i++) {
-                synchronized (lock) {
+                synchronized (LOCK) {
                     count++;
                 }
             }
         }, "t1");
         Thread t2 = new Thread(() -> {
             for (int i = 0; i < 5000; i++) {
-                synchronized (lock) {
+                synchronized (LOCK) {
                     count--;
                 }
             }
@@ -30,7 +32,7 @@ public class ThreadSafe {
         t2.start();
         t1.join();
         t2.join();
-        System.out.println(count);
+        System.out.println("count = " + count);
     }
 
     /**

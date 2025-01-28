@@ -6,6 +6,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 两阶段终止模式
+ *
+ * @author tianxing
  */
 @Slf4j(topic = "TwoPhaseTermination")
 public class TwoPhaseTermination {
@@ -19,10 +21,12 @@ public class TwoPhaseTermination {
                     break;
                 }
                 try {
-                    TimeUnit.SECONDS.sleep(2);
+                    // 情况1: 睡眠中被打断
+                    TimeUnit.SECONDS.sleep(1);
+                    // 情况2: 运行中被打断
                     log.info("执行监控记录");
                 } catch (InterruptedException e) {
-                    // 重置打断标记
+                    // 重新设置打断标记
                     Thread.currentThread().interrupt();
                 }
             }

@@ -5,12 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
+/**
+ * @author tianxing
+ */
 @Slf4j(topic = "Park")
 public class Park {
 
     /**
-     * 中断标记为false: park会阻塞
-     * 中断标记为true: park不会阻塞
+     * 打断标记为false: park会阻塞
+     * 打断标记为true: park不会阻塞
      */
     public static void main(String[] args) throws InterruptedException {
         Thread t1 = new Thread(() -> {
@@ -18,14 +21,17 @@ public class Park {
             // 阻塞
             LockSupport.park();
             log.info("unpark");
-            // true,重置打断标记为false
+            // true -> 重置打断标记为false
             log.info("打断标记: {}", Thread.interrupted());
+            // false
+            log.info("打断标记: {}", Thread.currentThread().isInterrupted());
+            // 阻塞
             LockSupport.park();
             log.info("unpark");
         }, "t1");
         t1.start();
-        TimeUnit.MILLISECONDS.sleep(500);
-        log.info("interrupt");
+        TimeUnit.SECONDS.sleep(1);
+        log.info("interrupt park thread");
         t1.interrupt();
     }
 }

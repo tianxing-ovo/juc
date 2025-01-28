@@ -1,10 +1,14 @@
+package com.ltx;
+
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
 /**
- * 线程状态
+ * 线程状态测试
+ *
+ * @author tianxing
  */
 @Slf4j
 public class ThreadStatusTest {
@@ -65,7 +69,7 @@ public class ThreadStatusTest {
      */
     @Test
     public void test3() throws InterruptedException {
-        Thread t1 = new Thread(() -> {
+        new Thread(() -> {
             synchronized (ThreadStatusTest.class) {
                 try {
                     TimeUnit.SECONDS.sleep(1);
@@ -73,7 +77,7 @@ public class ThreadStatusTest {
                     e.printStackTrace(System.err);
                 }
             }
-        }, "t1");
+        }, "t1").start();
         Thread t2 = new Thread(() -> {
             synchronized (ThreadStatusTest.class) {
                 try {
@@ -83,7 +87,6 @@ public class ThreadStatusTest {
                 }
             }
         }, "t2");
-        t1.start();
         t2.start();
         TimeUnit.MILLISECONDS.sleep(200);
         // BLOCKED
