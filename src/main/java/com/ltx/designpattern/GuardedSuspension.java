@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 保护性暂停模式
+ * 保护性暂停模式: 生产者线程和消费者线程是一对一的关系
  * 虚假唤醒(spurious wakeup): 线程在没有收到显式通知的情况下意外醒来
  *
  * @author tianxing

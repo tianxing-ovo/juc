@@ -14,6 +14,10 @@
 
 ![](src/main/resources/png/保护性暂停模式.png)
 
+### 生产者消费者模式
+
+![](src/main/resources/png/生产者消费者模式.png)
+
 ## 线程不安全
 
 ### 正数
