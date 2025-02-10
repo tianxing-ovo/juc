@@ -27,3 +27,7 @@
 ### 负数
 
 ![](src/main/resources/png/线程不安全-负数.png)
+
+## park原理
+
+![](src/main/resources/png/park原理.png)

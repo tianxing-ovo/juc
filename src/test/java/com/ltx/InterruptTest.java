@@ -15,6 +15,8 @@ public class InterruptTest {
 
     /**
      * 打断阻塞线程(sleep/wait/join)会清除打断标记(重置为false)
+     *
+     * @throws InterruptedException 中断异常
      */
     @Test
     public void interruptBlockingThread() throws InterruptedException {
@@ -41,6 +43,8 @@ public class InterruptTest {
 
     /**
      * 打断正常运行的线程不会清除打断标记
+     *
+     * @throws InterruptedException 中断异常
      */
     @Test
     public void interruptNormalThread() throws InterruptedException {

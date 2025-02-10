@@ -1,6 +1,6 @@
 package com.ltx.designpattern;
 
-import lombok.Getter;
+import com.ltx.entity.GuardedObject;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 保护性暂停模式: 生产者线程和消费者线程是一对一的关系
- * 虚假唤醒(spurious wakeup): 线程在没有收到显式通知的情况下意外醒来
  *
  * @author tianxing
  */
@@ -79,55 +78,3 @@ public class GuardedSuspension {
     }
 }
 
-@Getter
-class GuardedObject {
-    // 唯一标识
-    private final int id;
-    // 结果
-    private Object response;
-
-    public GuardedObject(int id) {
-        this.id = id;
-    }
-
-    /**
-     * 获取结果
-     *
-     * @param timeout 超时时间
-     * @return 结果
-     */
-    public Object get(long timeout) {
-        synchronized (this) {
-            // 开始时间
-            long start = System.currentTimeMillis();
-            // 经历的时间
-            long elapse = 0;
-            while (response == null) {
-                try {
-                    // 剩余的等待时间 -> 防止虚假唤醒
-                    long wait = timeout - elapse;
-                    if (wait <= 0) {
-                        break;
-                    }
-                    this.wait(wait);
-                    elapse = System.currentTimeMillis() - start;
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            return response;
-        }
-    }
-
-    /**
-     * 设置结果
-     *
-     * @param response 结果
-     */
-    public void set(Object response) {
-        synchronized (this) {
-            this.response = response;
-            this.notifyAll();
-        }
-    }
-}
