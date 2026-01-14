@@ -1,23 +1,29 @@
 package com.ltx.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Deque;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.LinkedList;
 
 /**
- * 消息队列
+ * 消息队列(Java线程之间通信)
  *
  * @author tianxing
  */
-@AllArgsConstructor
 @Slf4j(topic = "MessageQueue")
 public class MessageQueue {
 
-    private final Deque<Message> deque = new LinkedBlockingDeque<>();
+    private final Deque<Message> deque = new LinkedList<>();
+    private final int capacity;
 
-    private int capacity;
+    /**
+     * 构造方法
+     *
+     * @param capacity 队列容量
+     */
+    public MessageQueue(int capacity) {
+        this.capacity = capacity;
+    }
 
     /**
      * 获取消息

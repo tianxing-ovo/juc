@@ -9,6 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * @author tianxing
  */
+@SuppressWarnings("SpellCheckingInspection")
 @NoArgsConstructor
 public class Account {
 

@@ -10,6 +10,7 @@ import java.util.concurrent.FutureTask;
  *
  * @author tianxing
  */
+@SuppressWarnings("SpellCheckingInspection")
 @Slf4j(topic = "CreateThread")
 public class CreateThread {
     public static void main(String[] args) throws Exception {

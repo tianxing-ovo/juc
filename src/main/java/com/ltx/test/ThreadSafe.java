@@ -5,6 +5,7 @@ package com.ltx.test;
  *
  * @author tianxing
  */
+@SuppressWarnings({"SpellCheckingInspection", "unused"})
 public class ThreadSafe {
 
     private static final Object LOCK = new Object();

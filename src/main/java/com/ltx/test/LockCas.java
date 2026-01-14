@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author tianxing
  */
+@SuppressWarnings("SpellCheckingInspection")
 @Slf4j(topic = "LockCas")
 public class LockCas {
 

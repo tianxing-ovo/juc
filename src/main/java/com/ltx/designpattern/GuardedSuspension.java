@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author tianxing
  */
+@SuppressWarnings("SpellCheckingInspection")
 @Slf4j
 public class GuardedSuspension {
 
@@ -77,4 +78,3 @@ public class GuardedSuspension {
         return GUARDED_OBJECT_MAP.remove(id);
     }
 }
-
