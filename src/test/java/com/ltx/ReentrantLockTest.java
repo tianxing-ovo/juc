@@ -1,7 +1,8 @@
 package com.ltx;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -11,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * ReentrantLock测试
  * lock(): 获取锁
  * lockInterruptibly(): 获取锁(可中断)
- * tryLock(): 尝试获取锁
+ * tryLock(long timeout, TimeUnit unit): 尝试获取锁(可中断可超时)
  * unlock(): 释放锁
  * await(): 无时限等待
  * signal(): 顺序唤醒一个线程(hotspot)
@@ -20,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author tianxing
  */
 @Slf4j(topic = "ReentrantLockTest")
-public class ReentrantLockTest {
+class ReentrantLockTest {
     // 默认是非公平锁
     private final ReentrantLock reentrantLock = new ReentrantLock();
     private final Condition smokeCondition = reentrantLock.newCondition();
@@ -28,86 +29,93 @@ public class ReentrantLockTest {
     private boolean hasSmoke = false;
     private boolean hasTakeout = false;
 
-    /**
-     * 可重入: 同一个线程可以多次获取锁
-     */
+
     @Test
-    public void reentrant() {
-        outerMethod();
+    @DisplayName("可重入特性")
+    void reentrant() {
+        reentrantLock.lock();
+        try {
+            log.info("外层获取锁");
+            // 进入内层方法再次获取同一把锁
+            inner();
+        } finally {
+            log.info("外层完全释放锁");
+            reentrantLock.unlock();
+        }
     }
 
-    /**
-     * 可中断: 在等待锁的过程中可以中断
-     *
-     * @throws InterruptedException 中断异常
-     */
     @Test
-    public void interruptibly() throws InterruptedException {
+    @DisplayName("可中断特性")
+    void interruptibly() throws InterruptedException {
         Thread t1 = new Thread(() -> {
             try {
-                log.info("t1获取锁");
+                log.info("可中断地获取锁");
                 reentrantLock.lockInterruptibly();
-                log.info("t1获取到锁");
+                log.info("获取到锁");
             } catch (InterruptedException e) {
-                log.info("t1被中断");
+                log.info("等待锁期间被外部打断");
             } finally {
                 if (reentrantLock.isHeldByCurrentThread()) {
                     reentrantLock.unlock();
-                    log.info("t1释放锁");
+                    log.info("释放可中断获取的锁");
                 }
             }
         }, "t1");
+        // 主线程先获取锁使t1陷入阻塞等待
         reentrantLock.lock();
-        t1.start();
-        Thread.sleep(1000);
-        log.info("打断t1");
-        t1.interrupt();
-        t1.join();
+        try {
+            // 启动t1
+            t1.start();
+            // 确保t1已进入阻塞等待
+            Thread.sleep(1000);
+            log.info("打断t1");
+            t1.interrupt();
+            t1.join();
+        } finally {
+            reentrantLock.unlock();
+        }
     }
 
-    /**
-     * 锁超时: 在等待锁的过程中可以超时
-     *
-     * @throws InterruptedException 中断异常
-     */
     @Test
-    public void tryLock() throws InterruptedException {
+    @DisplayName("锁超时特性")
+    void tryLock() throws InterruptedException {
         Thread t1 = new Thread(() -> {
             try {
-                log.info("t1尝试获取锁");
+                log.info("尝试限时获取锁");
                 if (!reentrantLock.tryLock(1, TimeUnit.SECONDS)) {
-                    log.info("t1获取锁失败");
+                    log.info("获取锁超时放弃");
                     return;
                 }
-                log.debug("t1获取到锁");
+                log.info("限时获取到锁");
             } catch (InterruptedException e) {
-                log.debug("t1被中断");
+                log.info("限时等待中被中断");
             } finally {
                 if (reentrantLock.isHeldByCurrentThread()) {
                     reentrantLock.unlock();
+                    log.info("释放限时获取的锁");
                 }
             }
         }, "t1");
         reentrantLock.lock();
-        t1.start();
-        t1.join();
+        try {
+            t1.start();
+            t1.join();
+        } finally {
+            reentrantLock.unlock();
+        }
     }
 
-    /**
-     * 条件变量: WaitSet(等待队列)
-     *
-     * @throws InterruptedException 中断异常
-     */
     @Test
-    public void condition() throws InterruptedException {
+    @DisplayName("多条件变量特性")
+    void multiCondition() throws InterruptedException {
         new Thread(() -> {
             reentrantLock.lock();
             try {
                 while (!hasSmoke) {
-                    log.info("t1等待烟");
+                    log.info("等待烟");
                     smokeCondition.await();
                 }
-                log.info("t1开始吸烟");
+                log.info("开始吸烟");
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } finally {
@@ -118,10 +126,10 @@ public class ReentrantLockTest {
             reentrantLock.lock();
             try {
                 while (!hasTakeout) {
-                    log.info("t2等待外卖");
+                    log.info("等待外卖");
                     takeoutCondition.await();
                 }
-                log.info("t2开始吃外卖");
+                log.info("开始吃外卖");
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } finally {
@@ -132,7 +140,7 @@ public class ReentrantLockTest {
         new Thread(() -> {
             reentrantLock.lock();
             try {
-                log.info("t3生产烟");
+                log.info("生产烟");
                 hasSmoke = true;
                 smokeCondition.signal();
             } finally {
@@ -143,7 +151,7 @@ public class ReentrantLockTest {
         Thread t4 = new Thread(() -> {
             reentrantLock.lock();
             try {
-                log.info("t4生产外卖");
+                log.info("生产外卖");
                 hasTakeout = true;
                 takeoutCondition.signal();
             } finally {
@@ -154,23 +162,12 @@ public class ReentrantLockTest {
         t4.join();
     }
 
-    public void outerMethod() {
+    private void inner() {
         reentrantLock.lock();
         try {
-            System.out.println(Thread.currentThread().getName() + " - Entered outerMethod");
-            innerMethod();
+            log.info("内层重入获取锁");
         } finally {
-            System.out.println(Thread.currentThread().getName() + " - Exiting outerMethod");
-            reentrantLock.unlock();
-        }
-    }
-
-    public void innerMethod() {
-        reentrantLock.lock();
-        try {
-            System.out.println(Thread.currentThread().getName() + " - Entered innerMethod");
-        } finally {
-            System.out.println(Thread.currentThread().getName() + " - Exiting innerMethod");
+            log.info("内层释放锁");
             reentrantLock.unlock();
         }
     }

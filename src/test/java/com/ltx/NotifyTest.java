@@ -1,7 +1,8 @@
 package com.ltx;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 /**
  * notify()和notifyAll()测试
@@ -15,43 +16,45 @@ import org.junit.Test;
  * @author tianxing
  */
 @Slf4j
-public class NotifyTest {
+class NotifyTest {
 
     private final Object obj = new Object();
 
     @Test
-    public void testNotify() throws InterruptedException {
-        new Thread(() -> run("t1"), "t1").start();
-        new Thread(() -> run("t2"), "t2").start();
+    @DisplayName("唤醒单个线程")
+    void notifySingleThread() throws InterruptedException {
+        new Thread(this::waitForNotify, "t1").start();
+        new Thread(this::waitForNotify, "t2").start();
+        // 等待两个线程都进入WaitSet
         Thread.sleep(1000);
         synchronized (obj) {
-            log.info("notify begin");
+            log.info("唤醒单个线程");
             obj.notify();
-            log.info("notify end");
         }
     }
 
     @Test
-    public void testNotifyAll() throws InterruptedException {
-        new Thread(() -> run("t1"), "t1").start();
-        new Thread(() -> run("t2"), "t2").start();
+    @DisplayName("唤醒所有线程")
+    void notifyAllThreads() throws InterruptedException {
+        new Thread(this::waitForNotify, "t1").start();
+        new Thread(this::waitForNotify, "t2").start();
+        // 等待两个线程都进入WaitSet
         Thread.sleep(1000);
         synchronized (obj) {
-            log.info("notifyAll begin");
+            log.info("唤醒所有线程");
             obj.notifyAll();
-            log.info("notifyAll end");
         }
     }
 
-    private void run(String name) {
+    private void waitForNotify() {
         synchronized (obj) {
-            log.info("{} wait begin", name);
+            log.info("开始等待");
             try {
                 obj.wait();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            log.info("{} wait end", name);
+            log.info("被唤醒");
         }
     }
 }

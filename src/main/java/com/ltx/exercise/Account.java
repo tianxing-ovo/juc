@@ -5,11 +5,10 @@ import lombok.NoArgsConstructor;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 帐户
+ * 帐户类
  *
  * @author tianxing
  */
-@SuppressWarnings("SpellCheckingInspection")
 @NoArgsConstructor
 public class Account {
 

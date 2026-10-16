@@ -1,6 +1,7 @@
 package com.ltx;
 
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.openjdk.jol.vm.VM;
 
 /**
@@ -8,10 +9,16 @@ import org.openjdk.jol.vm.VM;
  *
  * @author tianxing
  */
-public class JOLTest {
+class JOLTest {
+
+    static {
+        System.setProperty("jol.skipHotspotSAAttach", "true");
+        System.setProperty("jol.skipDynamicAttach", "true");
+    }
+
     @Test
-    public void test() {
-        // 打印当前虚拟机的信息
+    @DisplayName("打印当前虚拟机的信息")
+    void printVmDetails() {
         System.out.println(VM.current().details());
     }
 }

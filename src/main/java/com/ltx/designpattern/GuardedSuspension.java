@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author tianxing
  */
-@SuppressWarnings("SpellCheckingInspection")
 @Slf4j
 public class GuardedSuspension {
 

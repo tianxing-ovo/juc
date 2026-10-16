@@ -3,6 +3,8 @@ package com.ltx.entity;
 import lombok.ToString;
 
 /**
+ * 学生类
+ *
  * @author tianxing
  */
 @ToString

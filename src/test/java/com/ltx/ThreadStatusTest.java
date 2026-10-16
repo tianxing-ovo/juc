@@ -1,9 +1,12 @@
 package com.ltx;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * 线程状态测试
@@ -11,70 +14,71 @@ import java.util.concurrent.TimeUnit;
  * @author tianxing
  */
 @Slf4j
-public class ThreadStatusTest {
+class ThreadStatusTest {
 
-    /**
-     * NEW/RUNNABLE/TIMED_WAITING/TERMINATED
-     */
     @Test
-    public void test1() throws InterruptedException {
+    @DisplayName("生命周期与超时等待")
+    void lifecycleAndTimedWaiting() throws InterruptedException {
         Thread t1 = new Thread(() -> {
             try {
                 TimeUnit.MILLISECONDS.sleep(500);
             } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
+                Thread.currentThread().interrupt();
             }
         }, "t1");
-        // NEW
-        System.out.println(t1.getState());
+        // 创建后状态: NEW
+        Thread.State state = t1.getState();
+        log.info("创建后状态: {}", state);
+        assertEquals(Thread.State.NEW, state);
         t1.start();
-        // RUNNABLE
-        System.out.println(t1.getState());
+        // 启动后状态: RUNNABLE
+        state = t1.getState();
+        log.info("启动后状态: {}", state);
+        assertEquals(Thread.State.RUNNABLE, state);
         TimeUnit.MILLISECONDS.sleep(200);
-        // TIMED_WAITING
-        System.out.println(t1.getState());
-        TimeUnit.MILLISECONDS.sleep(500);
-        // TERMINATED
-        System.out.println(t1.getState());
+        // 休眠中状态: TIMED_WAITING
+        state = t1.getState();
+        log.info("休眠中状态: {}", state);
+        assertEquals(Thread.State.TIMED_WAITING, state);
+        t1.join();
+        // 终止后状态: TERMINATED
+        state = t1.getState();
+        log.info("终止后状态: {}", state);
+        assertEquals(Thread.State.TERMINATED, state);
     }
 
-    /**
-     * WAITING
-     */
     @Test
-    public void test2() throws InterruptedException {
+    @DisplayName("等待状态")
+    void waitingState() throws InterruptedException {
+        // 获取主线程
+        Thread mainThread = Thread.currentThread();
         Thread t1 = new Thread(() -> {
             try {
-                TimeUnit.SECONDS.sleep(2);
+                // t1等待主线程
+                mainThread.join();
             } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
+                Thread.currentThread().interrupt();
             }
         }, "t1");
-        Thread t2 = new Thread(() -> {
-            try {
-                t1.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
-            }
-        }, "t2");
         t1.start();
-        t2.start();
-        TimeUnit.SECONDS.sleep(1);
-        // WAITING
-        System.out.println(t2.getState());
+        TimeUnit.MILLISECONDS.sleep(100);
+        // join等待状态: WAITING
+        Thread.State state = t1.getState();
+        log.info("join等待状态: {}", state);
+        assertEquals(Thread.State.WAITING, state);
+        // 中断t1以避免后台悬挂
+        t1.interrupt();
     }
 
-    /**
-     * BLOCKED
-     */
     @Test
-    public void test3() throws InterruptedException {
+    @DisplayName("阻塞状态")
+    void blockedState() throws InterruptedException {
         new Thread(() -> {
             synchronized (ThreadStatusTest.class) {
                 try {
                     TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException e) {
-                    e.printStackTrace(System.err);
+                    Thread.currentThread().interrupt();
                 }
             }
         }, "t1").start();
@@ -83,13 +87,15 @@ public class ThreadStatusTest {
                 try {
                     TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException e) {
-                    e.printStackTrace(System.err);
+                    Thread.currentThread().interrupt();
                 }
             }
         }, "t2");
         t2.start();
         TimeUnit.MILLISECONDS.sleep(200);
-        // BLOCKED
-        System.out.println(t2.getState());
+        // 锁竞争阻塞状态: BLOCKED
+        Thread.State state = t2.getState();
+        log.info("锁竞争阻塞状态: {}", state);
+        assertEquals(Thread.State.BLOCKED, state);
     }
 }
