@@ -1,46 +1,31 @@
 package com.ltx.exercise;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 帐户类
+ * 账户类
  *
  * @author tianxing
  */
+@Getter
 @NoArgsConstructor
 public class Account {
+
+    private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
+
+    /**
+     * 账户唯一ID(确定加锁顺序避免死锁)
+     */
+    private final int id = ID_GENERATOR.incrementAndGet();
 
     private int money;
 
     public Account(int money) {
         this.money = money;
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        Account a = new Account(1000);
-        Account b = new Account(1000);
-        Thread t1 = new Thread(() -> {
-            for (int i = 0; i < 1000; i++) {
-                a.transfer(b, randomAmount());
-            }
-        }, "t1");
-        Thread t2 = new Thread(() -> {
-            for (int i = 0; i < 1000; i++) {
-                b.transfer(a, randomAmount());
-            }
-        }, "t2");
-        t1.start();
-        t2.start();
-        t1.join();
-        t2.join();
-        // 输出账户a的余额
-        System.out.println("a.money = " + a.money);
-        // 输出账户b的余额
-        System.out.println("b.money = " + b.money);
-        // 输出账户a和b的总余额
-        System.out.println("total = " + (a.money + b.money));
     }
 
     /**
@@ -49,21 +34,29 @@ public class Account {
      * @return 1-5
      */
     public static int randomAmount() {
-        return ThreadLocalRandom.current().nextInt(5) + 1;
+        return ThreadLocalRandom.current().nextInt(1, 6);
     }
 
     /**
-     * 转账
-     * this.money和target.money是共享变量
+     * 转账(this.money和target.money是共享变量)
      *
      * @param target 目标账户
      * @param amount 转账金额
      */
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     public void transfer(Account target, int amount) {
-        if (this.money >= amount) {
-            synchronized (Account.class) {
-                this.money -= amount;
-                target.money += amount;
+        if (this == target) {
+            return;
+        }
+        // 按账户ID大小确定加锁顺序
+        Account first = this.id < target.id ? this : target;
+        Account second = this.id < target.id ? target : this;
+        synchronized (first) {
+            synchronized (second) {
+                if (this.money >= amount) {
+                    this.money -= amount;
+                    target.money += amount;
+                }
             }
         }
     }
