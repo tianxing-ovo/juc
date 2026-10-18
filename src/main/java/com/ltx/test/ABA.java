@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicStampedReference;
  *
  * @author tianxing
  */
-@SuppressWarnings("SpellCheckingInspection")
 @Slf4j(topic = "ABA")
 public class ABA {
 

@@ -1,5 +1,6 @@
 package com.ltx.exercise;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +23,16 @@ public class Account {
      */
     private final int id = ID_GENERATOR.incrementAndGet();
 
-    private int money;
+    /**
+     * 专用锁对象(不对外暴露Getter)
+     */
+    @Getter(AccessLevel.NONE)
+    private final Object lock = new Object();
+
+    /**
+     * 账户余额(加volatile确保调用getMoney()时的可见性)
+     */
+    private volatile int money;
 
     public Account(int money) {
         this.money = money;
@@ -43,16 +53,15 @@ public class Account {
      * @param target 目标账户
      * @param amount 转账金额
      */
-    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     public void transfer(Account target, int amount) {
-        if (this == target) {
+        if (target == null || this == target || amount <= 0) {
             return;
         }
         // 按账户ID大小确定加锁顺序
         Account first = this.id < target.id ? this : target;
         Account second = this.id < target.id ? target : this;
-        synchronized (first) {
-            synchronized (second) {
+        synchronized (first.lock) {
+            synchronized (second.lock) {
                 if (this.money >= amount) {
                     this.money -= amount;
                     target.money += amount;

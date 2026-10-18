@@ -3,6 +3,8 @@ package com.ltx.entity;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * 哲学家
  *
@@ -15,7 +17,14 @@ public class Philosopher extends Thread {
 
     private final Chopstick left;
     private final Chopstick right;
-    private Runnable runnable = this::synchronizedLock;
+    /**
+     * 是否使用ReentrantLock
+     */
+    private boolean useReentrantLock;
+    /**
+     * 就餐次数计数器
+     */
+    private final AtomicInteger eatCount = new AtomicInteger();
 
     public Philosopher(String name, Chopstick left, Chopstick right) {
         super(name);
@@ -24,7 +33,16 @@ public class Philosopher extends Thread {
     }
 
     /**
-     * 不存在死锁问题
+     * 获取累计就餐次数
+     *
+     * @return 就餐次数
+     */
+    public int getEatCount() {
+        return eatCount.get();
+    }
+
+    /**
+     * 使用ReentrantLock锁(不存在死锁问题)
      */
     public void reentrantLock() {
         while (true) {
@@ -32,10 +50,7 @@ public class Philosopher extends Thread {
                 try {
                     if (right.tryLock()) {
                         try {
-                            log.debug("{} is eating", getName());
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
+                            eat();
                         } finally {
                             right.unlock();
                         }
@@ -44,32 +59,50 @@ public class Philosopher extends Thread {
                     left.unlock();
                 }
             }
-            // 如果未能成功获取两根筷子的锁 -> 让出CPU时间片
+            // 让出CPU时间片防止自旋空转并提高公平性
             Thread.yield();
         }
     }
 
 
     /**
-     * 存在死锁问题
+     * 使用synchronized锁(存在死锁问题)
      */
     public void synchronizedLock() {
         while (true) {
             synchronized (left) {
+                try {
+                    // 拿到左筷子后短暂停顿以确保所有人持有左筷子稳定复现死锁
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 synchronized (right) {
-                    log.info("{} is eating", getName());
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                    eat();
                 }
             }
         }
     }
 
+    /**
+     * 哲学家就餐
+     */
+    private void eat() {
+        log.info("使用 [{}] 和 [{}] 正在就餐", left.getName(), right.getName());
+        eatCount.incrementAndGet();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void run() {
-        runnable.run();
+        if (useReentrantLock) {
+            reentrantLock();
+        } else {
+            synchronizedLock();
+        }
     }
 }
