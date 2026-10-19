@@ -1,4 +1,4 @@
-package com.ltx;
+package com.ltx.basic;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

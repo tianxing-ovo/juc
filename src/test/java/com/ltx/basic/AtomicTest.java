@@ -1,4 +1,4 @@
-package com.ltx;
+package com.ltx.basic;
 
 import com.ltx.entity.Student;
 import lombok.extern.slf4j.Slf4j;

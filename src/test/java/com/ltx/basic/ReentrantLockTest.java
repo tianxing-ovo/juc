@@ -1,4 +1,4 @@
-package com.ltx;
+package com.ltx.basic;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +28,6 @@ class ReentrantLockTest {
     private final Condition takeoutCondition = reentrantLock.newCondition();
     private boolean hasSmoke = false;
     private boolean hasTakeout = false;
-
 
     @Test
     @DisplayName("可重入特性")

@@ -1,4 +1,4 @@
-package com.ltx;
+package com.ltx.basic;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
