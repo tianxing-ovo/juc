@@ -1,24 +1,27 @@
-package com.ltx.test;
+package com.ltx.basic;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 线程优先级
  *
  * @author tianxing
  */
+@Slf4j(topic = "ThreadPriority")
 public class ThreadPriority {
     public static void main(String[] args) {
         Thread t1 = new Thread(() -> {
             int count = 0;
             while (count < 1000) {
-                System.out.println("t1: " + count++);
+                log.info("{}", count++);
             }
         }, "t1");
         Thread t2 = new Thread(() -> {
             int count = 0;
             while (count < 1000) {
-                // 当前正在执行的线程放弃CPU执行时间片 -> 回到就绪状态 -> 将执行机会让给优先级相同或更高且已准备好运行的线程
+                // 提示让出CPU时间片(由运行态退回就绪态且不释放锁)
                 Thread.yield();
-                System.out.println("t2: " + count++);
+                log.info("{}", count++);
             }
         }, "t2");
         // 设置最高优先级
