@@ -1,10 +1,13 @@
-package com.ltx.test;
+package com.ltx.liveness;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 线程安全
  *
  * @author tianxing
  */
+@Slf4j(topic = "ThreadSafe")
 @SuppressWarnings({"unused"})
 public class ThreadSafe {
 
@@ -33,7 +36,8 @@ public class ThreadSafe {
         t2.start();
         t1.join();
         t2.join();
-        System.out.println("count = " + count);
+        // count = 0
+        log.info("count = {}", count);
     }
 
     /**

@@ -1,9 +1,11 @@
-package com.ltx.test;
+package com.ltx.liveness;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.TimeUnit;
+
 /**
- * 死锁: 两个线程互相等待对方释放资源 -> 程序无法继续执行
+ * 死锁: 多个线程互相等待对方释放锁资源导致程序永久阻塞
  *
  * @author tianxing
  */
@@ -16,10 +18,10 @@ public class DeadLock {
         new Thread(() -> {
             synchronized (A) {
                 try {
-                    log.info("t1 lock A");
-                    Thread.sleep(500);
+                    log.info("hold lock A");
+                    TimeUnit.MILLISECONDS.sleep(500);
                     synchronized (B) {
-                        log.info("t1 lock B");
+                        log.info("get lock B");
                     }
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -28,9 +30,14 @@ public class DeadLock {
         }, "t1").start();
         new Thread(() -> {
             synchronized (B) {
-                log.info("t2 lock B");
-                synchronized (A) {
-                    log.info("t2 lock A");
+                try {
+                    log.info("hold lock B");
+                    TimeUnit.MILLISECONDS.sleep(500);
+                    synchronized (A) {
+                        log.info("get lock A");
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
         }, "t2").start();
