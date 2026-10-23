@@ -28,6 +28,6 @@
 
 ![](src/main/resources/png/线程不安全-负数.png)
 
-## park原理
+## Park原理
 
-![](src/main/resources/png/park原理.png)
+![](src/main/resources/png/Park原理.png)
