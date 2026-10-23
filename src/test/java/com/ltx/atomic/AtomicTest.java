@@ -1,4 +1,4 @@
-package com.ltx.basic;
+package com.ltx.atomic;
 
 import com.ltx.entity.Student;
 import lombok.extern.slf4j.Slf4j;
